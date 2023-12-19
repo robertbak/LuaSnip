@@ -276,16 +276,20 @@ function Node:init_insert_positions(position_so_far)
 end
 
 function Node:event(event)
-	if self.pos then
+	local callback = self.node_callbacks[event]
+
+	-- try to get the callback from the parent.
+	if not callback and self.pos then
 		-- node needs position to get callback (nodes may not have position if
 		-- defined in a choiceNode, ie. c(1, {
 		--	i(nil, {"works!"})
 		-- }))
 		-- works just fine.
-		local callback = self.parent.callbacks[self.pos][event]
-		if callback then
-			callback(self)
-		end
+		callback = self.parent.callbacks[self.pos][event]
+	end
+
+	if callback then
+		callback(self)
 	end
 
 	session.event_node = self
